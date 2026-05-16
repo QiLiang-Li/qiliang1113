@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "日记记账",
+    "slug": "diary-finance-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "diaryfinance",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F5F2"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.diaryfinance.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F7F5F2"
+      },
+      "package": "com.diaryfinance.app"
+    },
+    "plugins": ["expo-router"]
+  }
+}
