@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="日记记账 — 一款简洁的手机应用，整合每日日记、长文感言与分类记账，数据保存在本机。"
+    />
+    <title>日记记账 — 下载与介绍</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container inner">
+        <a href="#" class="logo">
+          <span class="logo-icon">📔</span>
+          <span>日记记账</span>
+        </a>
+        <nav class="nav">
+          <a href="#features">功能</a>
+          <a href="#highlights">特点</a>
+          <a href="#download">下载</a>
+        </nav>
+        <a href="#download" class="btn btn-primary">立即下载</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <h1>日记、感言与记账<br />装进一个 App</h1>
+            <p class="tagline">
+              用日历记录每天的心情，用独立页签写长文感言，用颜色区分收入与支出。界面简单，数据只存在你的手机里。
+            </p>
+            <div class="hero-actions">
+              <a id="hero-android" href="#download" class="btn btn-primary btn-lg">下载 Android 版</a>
+              <a href="#features" class="btn btn-outline btn-lg">了解功能</a>
+            </div>
+            <p class="hero-meta">免费使用 · 无需注册 · 离线可用</p>
+          </div>
+          <div class="phone-mock" aria-hidden="true">
+            <div class="phone-screen">
+              <div class="mock-card">
+                <strong>📅 5月16日</strong>
+                <p style="margin-top: 8px; color: var(--text-muted); font-size: 0.85rem">
+                  今天天气很好，心情也不错…
+                </p>
+              </div>
+              <div class="mock-card">
+                <span class="dot" style="background: var(--income)"></span>
+                <strong style="color: var(--income)">+¥3,200</strong>
+                <span style="color: var(--text-muted); font-size: 0.8rem"> · 工资</span>
+              </div>
+              <div class="mock-card">
+                <span class="dot" style="background: #e07a5f"></span>
+                <strong style="color: var(--expense)">-¥68</strong>
+                <span style="color: var(--text-muted); font-size: 0.8rem"> · 生活开支</span>
+              </div>
+              <div class="mock-tabs">
+                <span class="active">日记</span>
+                <span>感言</span>
+                <span>记账</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="container">
+          <div class="section-title">
+            <h2>三大核心功能</h2>
+            <p>底部三个页签，随时切换，互不干扰</p>
+          </div>
+          <div class="features">
+            <article class="feature-card">
+              <div class="emoji">📅</div>
+              <h3>每日日记</h3>
+              <p>通过日历选择日期，为每一天写下专属日记。</p>
+              <ul>
+                <li>有日记的日期会显示标记圆点</li>
+                <li>支持左右滑动切换月份</li>
+                <li>内容自动保存在本机</li>
+              </ul>
+            </article>
+            <article class="feature-card">
+              <div class="emoji">📝</div>
+              <h3>长文感言</h3>
+              <p>独立的感言页签，适合记录更长的思考与心情。</p>
+              <ul>
+                <li>支持标题与长正文</li>
+                <li>列表浏览，点击进入编辑</li>
+                <li>长按可删除不需要的篇章</li>
+              </ul>
+            </article>
+            <article class="feature-card">
+              <div class="emoji">💰</div>
+              <h3>分类记账</h3>
+              <p>记录每天的收入与支出，一目了然。</p>
+              <ul>
+                <li>收入显示为绿色，支出显示为红色</li>
+                <li>支出分类：生活、购物、娱乐、交通、餐饮等</li>
+                <li>顶部汇总收入、支出与结余</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="highlights">
+        <div class="container">
+          <div class="section-title">
+            <h2>为什么选择它</h2>
+          </div>
+          <div class="highlights">
+            <div class="highlight-item">
+              <strong>🔒 隐私优先</strong>
+              <span>数据仅存本机，不上传云端</span>
+            </div>
+            <div class="highlight-item">
+              <strong>📴 离线可用</strong>
+              <span>无需联网即可写日记、记账</span>
+            </div>
+            <div class="highlight-item">
+              <strong>🎨 简洁界面</strong>
+              <span>浅色风格，专注内容本身</span>
+            </div>
+            <div class="highlight-item">
+              <strong>📱 双端支持</strong>
+              <span>Android 与 iOS 均可安装</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="download" class="download-section">
+        <div class="container">
+          <div class="section-title">
+            <h2>下载 App</h2>
+            <p>选择你的手机系统，安装后即可使用</p>
+          </div>
+          <div class="download-box">
+            <h2>获取「日记记账」</h2>
+            <p id="download-status">正在检查下载链接…</p>
+            <div class="download-buttons">
+              <a
+                id="android-download"
+                class="btn btn-primary btn-lg btn-disabled"
+                href="#download"
+                aria-disabled="true"
+              >
+                ⬇️ 下载 Android 安装包 (.apk)
+              </a>
+              <a
+                id="ios-download"
+                class="btn btn-outline btn-lg btn-disabled"
+                href="#download"
+                aria-disabled="true"
+              >
+                🍎 App Store 下载 (iOS)
+              </a>
+            </div>
+            <p class="version-tag" id="app-version">当前版本 v1.0.0</p>
+            <p class="download-hint">
+              安装 Android 包时，若系统提示「未知来源」，请在设置中允许安装来自此浏览器的应用。
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© 2026 日记记账 · 简洁生活，认真记录</p>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+      document.getElementById('hero-android')?.addEventListener('click', (e) => {
+        const btn = document.getElementById('android-download');
+        if (btn?.classList.contains('btn-disabled')) {
+          e.preventDefault();
+          document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (btn?.href) {
+          e.preventDefault();
+          window.location.href = btn.href;
+        }
+      });
+    </script>
+  </body>
+</html>
