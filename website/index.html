@@ -184,9 +184,6 @@
         if (btn?.classList.contains('btn-disabled')) {
           e.preventDefault();
           document.getElementById('download')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (btn?.href) {
-          e.preventDefault();
-          window.location.href = btn.href;
         }
       });
     </script>
