@@ -42,12 +42,12 @@ git push -u origin main
 
 ## 第二步：开启 GitHub Pages
 
-1. 打开仓库网页 → **Settings**（设置）
-2. 左侧 **Pages**
-3. **Build and deployment** → **Source** 选 **GitHub Actions**（不要选 Deploy from a branch）
-4. 保存后回到 **Actions** 页签，应能看到 **Deploy website to GitHub Pages** 正在运行或已成功
+1. 打开仓库 **Actions**，确认 **Deploy website to GitHub Pages** 运行成功（绿色 ✓）
+2. 打开 **Settings** → **Pages**
+3. **Build and deployment** → **Source** 选 **Deploy from a branch**
+4. **Branch** 选 `gh-pages`，文件夹选 `/ (root)`，点 **Save**
 
-首次推送 `main` 分支后，工作流会自动把 `website/` 文件夹发布出去。
+首次推送 `main` 后，Actions 会把 `website/` 发布到 `gh-pages` 分支。
 
 ---
 
