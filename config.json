@@ -1,7 +1,7 @@
 {
-  "appName": "日记记账",
+  "appName": "\u65e5\u8bb0\u8bb0\u8d26",
   "version": "1.0.0",
-  "androidApkUrl": "",
+  "androidApkUrl": "./releases/diary-finance.apk",
   "iosAppStoreUrl": "",
   "updatedAt": "2026-05-16"
 }
