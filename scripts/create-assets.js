@@ -4,12 +4,13 @@ const sharp = require('sharp');
 
 const dir = path.join(__dirname, '..', 'assets');
 const sourcePath = path.join(dir, 'cat-avatar.png');
-const SIZE = 512;
+const SIZE = 256;
 
 async function writeIcon(filePath) {
   await sharp(sourcePath)
     .resize(SIZE, SIZE, { fit: 'cover', position: 'center' })
-    .png({ compressionLevel: 9, palette: true, colors: 128 })
+    .ensureAlpha()
+    .png({ compressionLevel: 9 })
     .toFile(filePath);
 }
 
@@ -20,13 +21,12 @@ async function main() {
     return;
   }
 
-  const iconPath = path.join(dir, 'icon.png');
-  if (process.env.EAS_BUILD === 'true' && fs.existsSync(iconPath)) {
-    console.log('EAS build: using committed icons, skip regeneration');
+  if (process.env.EAS_BUILD === 'true') {
+    console.log('EAS build: using committed icons');
     return;
   }
 
-  await writeIcon(iconPath);
+  await writeIcon(path.join(dir, 'icon.png'));
   await writeIcon(path.join(dir, 'adaptive-icon.png'));
   await writeIcon(path.join(dir, 'splash-icon.png'));
 
