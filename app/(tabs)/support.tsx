@@ -14,9 +14,9 @@ import { ScreenHeader } from '../../src/components/ScreenHeader';
 import { COLORS } from '../../src/constants';
 
 const IMAGES = {
-  wechatContact: require('../../assets/images/wechat-contact-qr.png'),
-  alipay: require('../../assets/images/alipay-qr.png'),
-  wechatPay: require('../../assets/images/wechat-pay-qr.png'),
+  wechatContact: require('../../assets/images/wechat-contact-qr.jpg'),
+  alipay: require('../../assets/images/alipay-qr.jpg'),
+  wechatPay: require('../../assets/images/wechat-pay-qr.jpg'),
 };
 
 type QrKey = keyof typeof IMAGES;
