@@ -1,0 +1,48 @@
+﻿{
+  "id": "49418ce3-cc23-484d-94e5-211671db890e",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "EAS_BUILD_UNKNOWN_GRADLE_ERROR",
+    "message": "Gradle build failed with unknown error. See logs for the \"Run gradlew\" phase for more information."
+  },
+  "artifacts": {},
+  "fingerprint": {
+    "id": "019e3689-b810-7ff7-a5a4-cfd73f7e24fa",
+    "hash": "e224f38cc9cd312d6e40d546e0dce1e4a0736017"
+  },
+  "initiatingActor": {
+    "id": "7754e6ce-8392-495a-804d-d0a6e8a1b735",
+    "displayName": "m18637538729"
+  },
+  "logFiles": [
+    "https://storage.googleapis.com/eas-workflows-production/logs/7fc269f3-c446-4236-bf21-f994524442af/49418ce3-cc23-484d-94e5-211671db890e/2026-05-17T15%3A24%3A17Z-8c6a1b47-b021-4d5b-aba8-92b252de6b5c.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260517%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260517T152535Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=004c3c0aeb5f069ab0b4b3752e44c8de1e6b56f9c085549b601b66ee645d744463e01b0d1cbd7ceaf6aad63a8c2bb33c734bd8932853649fe3ec42e5e0f185b4c4e712d27e29b8958670ceaf97877da3d5fa2115d41cb2e97e12887aeefd4ae685d613bebfdc75e65ac1c277be0778323e79a12b37ecae19f16616e8aa23c9cf21cfada3c699c169db752ece8138c895dbe0ece2eeb07f43f931c32f4544122e816eb2668153d603bb7325b901f78f2c585a6e8277fe0693398c64e24b65e4d74a570f3c638bdf08bda7b7bd05108b224502baae3337ea4cb4e4eb94b7f83079a780bda2854fcbd948a16262a0980d0fe344eae2658a797a8e317a140dd485ff"
+  ],
+  "project": {
+    "id": "7fc269f3-c446-4236-bf21-f994524442af",
+    "name": "diary-finance-app",
+    "slug": "diary-finance-app",
+    "ownerAccount": {
+      "id": "c7224fc5-e06a-4285-a9dc-7acbaa0448e5",
+      "name": "m18637538729"
+    }
+  },
+  "distribution": "INTERNAL",
+  "buildProfile": "preview",
+  "sdkVersion": "52.0.0",
+  "appVersion": "1.0.2",
+  "appBuildVersion": "4",
+  "gitCommitHash": "8d9c7e31ffd52d3433e852a28fa7aebe608e88af",
+  "gitCommitMessage": "Fix Android build: adaptive icon must keep alpha channel\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+  "priority": "NORMAL",
+  "createdAt": "2026-05-17T15:24:15.714Z",
+  "updatedAt": "2026-05-17T15:28:05.668Z",
+  "completedAt": "2026-05-17T15:28:05.363Z",
+  "expirationDate": "2026-05-31T15:24:15.747Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 1345,
+    "buildQueueTime": 4942,
+    "buildDuration": 223362
+  }
+}
