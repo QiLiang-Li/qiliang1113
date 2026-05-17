@@ -9,17 +9,24 @@ const SIZE = 1024;
 async function writeIcon(filePath) {
   await sharp(sourcePath)
     .resize(SIZE, SIZE, { fit: 'cover', position: 'center' })
-    .png()
+    .png({ compressionLevel: 9, palette: true })
     .toFile(filePath);
 }
 
 async function main() {
   fs.mkdirSync(dir, { recursive: true });
   if (!fs.existsSync(sourcePath)) {
-    throw new Error(`Missing source icon: ${sourcePath}`);
+    console.warn('Skipping asset generation: missing cat-avatar.png');
+    return;
   }
 
-  await writeIcon(path.join(dir, 'icon.png'));
+  const iconPath = path.join(dir, 'icon.png');
+  if (process.env.EAS_BUILD === 'true' && fs.existsSync(iconPath)) {
+    console.log('EAS build: using committed icons, skip regeneration');
+    return;
+  }
+
+  await writeIcon(iconPath);
   await writeIcon(path.join(dir, 'adaptive-icon.png'));
   await writeIcon(path.join(dir, 'splash-icon.png'));
 
