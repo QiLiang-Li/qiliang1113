@@ -4,12 +4,12 @@ const sharp = require('sharp');
 
 const dir = path.join(__dirname, '..', 'assets');
 const sourcePath = path.join(dir, 'cat-avatar.png');
-const SIZE = 1024;
+const SIZE = 512;
 
 async function writeIcon(filePath) {
   await sharp(sourcePath)
     .resize(SIZE, SIZE, { fit: 'cover', position: 'center' })
-    .png({ compressionLevel: 9, palette: true })
+    .png({ compressionLevel: 9, palette: true, colors: 128 })
     .toFile(filePath);
 }
 
