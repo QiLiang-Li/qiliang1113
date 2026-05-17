@@ -14,3 +14,7 @@ npm-debug.*
 web-build/
 .env
 .DS_Store
+assets/t*.png
+build-view.json
+eas-log.txt
+eas-raw.bin
