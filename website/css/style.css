@@ -69,8 +69,9 @@ a {
 .logo-icon {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 50%;
   display: block;
+  object-fit: cover;
   box-shadow: 0 4px 12px rgba(91, 124, 153, 0.22);
 }
 

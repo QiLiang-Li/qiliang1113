@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "日记记账",
+    "name": "记账猫",
     "slug": "diary-finance-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,6 +23,16 @@
       },
       "package": "com.diaryfinance.app"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "7fc269f3-c446-4236-bf21-f994524442af"
+      }
+    }
   }
 }
