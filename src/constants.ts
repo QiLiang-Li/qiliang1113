@@ -1,35 +1,25 @@
 import { ExpenseCategory } from './types';
+import { EXPENSE_CATEGORY_LIST, getExpenseCategoryMeta } from './finance/constants';
 
 export const COLORS = {
-  background: '#F7F5F2',
+  background: '#F5F5F7',
   card: '#FFFFFF',
-  text: '#2C2C2C',
-  textSecondary: '#6B6B6B',
-  border: '#E8E4DF',
+  text: '#1A1A1A',
+  textSecondary: '#8E8E93',
+  border: '#EBEBED',
   income: '#2E9B6A',
   incomeBg: '#E8F6EF',
-  expense: '#D45C5C',
+  expense: '#1A1A1A',
   expenseBg: '#FBECEC',
-  accent: '#5B7C99',
-  accentLight: '#E8EEF3',
+  accent: '#4B8FE8',
+  accentLight: '#E8F1FD',
   tabInactive: '#9A9A9A',
 };
 
-export const EXPENSE_CATEGORIES: {
-  key: ExpenseCategory;
-  label: string;
-  color: string;
-}[] = [
-  { key: 'living', label: '生活开支', color: '#E07A5F' },
-  { key: 'shopping', label: '购物', color: '#9B5DE5' },
-  { key: 'entertainment', label: '娱乐', color: '#F4A261' },
-  { key: 'transport', label: '交通', color: '#5B7C99' },
-  { key: 'food', label: '餐饮', color: '#2A9D8F' },
-  { key: 'other', label: '其他', color: '#8D99AE' },
-];
+export const EXPENSE_CATEGORIES = EXPENSE_CATEGORY_LIST;
 
 export function getCategoryMeta(category: ExpenseCategory) {
-  return EXPENSE_CATEGORIES.find((c) => c.key === category) ?? EXPENSE_CATEGORIES[5];
+  return getExpenseCategoryMeta(category);
 }
 
 export function formatDate(date: Date): string {
@@ -45,4 +35,16 @@ export function formatMoney(amount: number): string {
 
 export function createId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function isSameMonth(dateStr: string, year: number, month: number) {
+  const [y, m] = dateStr.split('-').map(Number);
+  return y === year && m === month;
+}
+
+export function sumByType(
+  items: { type: string; amount: number }[],
+  type: 'income' | 'expense'
+) {
+  return items.filter((t) => t.type === type).reduce((s, t) => s + t.amount, 0);
 }

@@ -48,9 +48,18 @@ npx expo start
 2. 确保手机和电脑在同一 Wi-Fi
 3. 扫描终端里显示的二维码即可打开 App
 
-### 4. 打包成独立 App（可选）
+### 4. 打包 APK 并放到介绍页供下载
 
-需要 Expo 账号，可使用 [EAS Build](https://docs.expo.dev/build/introduction/) 生成 Android / iOS 安装包。
+完整步骤见 **[BUILD-APK.md](BUILD-APK.md)**。简要命令：
+
+```powershell
+npm install -g eas-cli
+eas login
+eas build:configure
+eas build -p android --profile preview
+# 下载 apk 后：
+powershell -File scripts\publish-apk.ps1 -ApkPath "下载的apk路径.apk"
+```
 
 ## 介绍与下载网站
 

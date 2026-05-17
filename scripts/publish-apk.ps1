@@ -24,7 +24,7 @@ if (-not $gh) {
 Write-Host ">>> Creating GitHub Release $tag ..." -ForegroundColor Cyan
 $releaseExists = gh release view $tag 2>$null
 if ($LASTEXITCODE -ne 0) {
-    gh release create $tag $ApkPath --repo "QiLiang-Li/qiliang1113" --title "日记记账 $tag" --notes "Android APK for diary-finance app."
+    gh release create $tag $ApkPath --repo "QiLiang-Li/qiliang1113" --title "招财猫 $tag" --notes "Android APK for 招财猫 diary-finance app."
 } else {
     gh release upload $tag $ApkPath --repo "QiLiang-Li/qiliang1113" --clobber
 }
@@ -37,7 +37,7 @@ Write-Host "Release URL: $releaseUrl" -ForegroundColor Green
 $today = Get-Date -Format "yyyy-MM-dd"
 $configJson = @"
 {
-  "appName": "\u65e5\u8bb0\u8bb0\u8d26",
+  "appName": "\u62db\u8d22\u732b",
   "version": "$Version",
   "androidApkUrl": "$releaseUrl",
   "iosAppStoreUrl": "",

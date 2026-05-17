@@ -1,137 +1,105 @@
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { EmptyState } from '../../src/components/EmptyState';
-import { ScreenHeader } from '../../src/components/ScreenHeader';
+import { DayPickerModal } from '../../src/components/finance/DayPickerModal';
 import {
   COLORS,
-  EXPENSE_CATEGORIES,
   formatDate,
   formatMoney,
-  getCategoryMeta,
+  isSameMonth,
+  sumByType,
 } from '../../src/constants';
 import { useApp } from '../../src/context/AppContext';
-import { ExpenseCategory, Transaction, TransactionType } from '../../src/types';
+import {
+  FINANCE_BLUE,
+  formatDayHeader,
+  formatMonthLabel,
+  getExpenseCategoryMeta,
+  getIncomeCategoryMeta,
+} from '../../src/finance/constants';
+import { Transaction } from '../../src/types';
 
-function SummaryCard({
-  income,
-  expense,
-  balance,
-}: {
-  income: number;
-  expense: number;
-  balance: number;
-}) {
-  return (
-    <View style={styles.summaryCard}>
-      <View style={styles.summaryItem}>
-        <Text style={styles.summaryLabel}>收入</Text>
-        <Text style={[styles.summaryValue, { color: COLORS.income }]}>+¥{formatMoney(income)}</Text>
-      </View>
-      <View style={styles.summaryDivider} />
-      <View style={styles.summaryItem}>
-        <Text style={styles.summaryLabel}>支出</Text>
-        <Text style={[styles.summaryValue, { color: COLORS.expense }]}>-¥{formatMoney(expense)}</Text>
-      </View>
-      <View style={styles.summaryDivider} />
-      <View style={styles.summaryItem}>
-        <Text style={styles.summaryLabel}>结余</Text>
-        <Text style={[styles.summaryValue, { color: balance >= 0 ? COLORS.income : COLORS.expense }]}>
-          ¥{formatMoney(balance)}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-function TransactionRow({
+function TransactionItem({
   item,
-  onDelete,
+  onLongPress,
 }: {
   item: Transaction;
-  onDelete: () => void;
+  onLongPress: () => void;
 }) {
   const isIncome = item.type === 'income';
-  const category = isIncome ? null : getCategoryMeta(item.category);
+  const meta = isIncome
+    ? getIncomeCategoryMeta(item.incomeCategory)
+    : getExpenseCategoryMeta(item.category);
+  const timeStr = item.time || new Date(item.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  const detail = [timeStr, item.note || item.app || item.channel].filter(Boolean).join(' | ');
 
   return (
-    <TouchableOpacity style={styles.txRow} onLongPress={onDelete}>
-      <View style={styles.txLeft}>
-        <View
-          style={[
-            styles.txDot,
-            { backgroundColor: isIncome ? COLORS.income : category?.color ?? COLORS.expense },
-          ]}
-        />
-        <View style={styles.txInfo}>
-          <Text style={styles.txNote}>{item.note || (isIncome ? '收入' : category?.label)}</Text>
-          <Text style={styles.txMeta}>
-            {item.date}
-            {!isIncome && category ? ` · ${category.label}` : ''}
-          </Text>
-        </View>
+    <TouchableOpacity style={styles.txItem} onLongPress={onLongPress} activeOpacity={0.7}>
+      <View style={[styles.txIcon, { backgroundColor: meta.color }]}>
+        <Text style={styles.txIconText}>{meta.icon}</Text>
       </View>
-      <Text style={[styles.txAmount, { color: isIncome ? COLORS.income : COLORS.expense }]}>
-        {isIncome ? '+' : '-'}¥{formatMoney(item.amount)}
+      <View style={styles.txBody}>
+        <View style={styles.txTitleRow}>
+          <Text style={styles.txCategory}>{meta.label}</Text>
+        </View>
+        <Text style={styles.txDetail} numberOfLines={1}>
+          {detail || item.channel}
+        </Text>
+      </View>
+      <Text style={styles.txAmount}>
+        {isIncome ? '' : '-'}
+        {formatMoney(item.amount)}
       </Text>
     </TouchableOpacity>
   );
 }
 
 export default function FinanceScreen() {
-  const { ready, transactions, addTransaction, deleteTransaction } = useApp();
+  const router = useRouter();
+  const { ready, transactions, deleteTransaction } = useApp();
   const today = formatDate(new Date());
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [hideAmounts, setHideAmounts] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
-  const [note, setNote] = useState('');
-  const [category, setCategory] = useState<ExpenseCategory>('living');
-  const [date, setDate] = useState(today);
-  const [filterDate, setFilterDate] = useState<string | null>(null);
+  const viewYear = Number(selectedDate.split('-')[0]);
+  const viewMonth = Number(selectedDate.split('-')[1]);
 
-  const filtered = useMemo(() => {
-    const list = filterDate
-      ? transactions.filter((t) => t.date === filterDate)
-      : transactions;
-    return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [transactions, filterDate]);
+  const monthTx = useMemo(
+    () => transactions.filter((t) => isSameMonth(t.date, viewYear, viewMonth)),
+    [transactions, viewYear, viewMonth]
+  );
 
-  const { income, expense, balance } = useMemo(() => {
-    let inc = 0;
-    let exp = 0;
-    filtered.forEach((t) => {
-      if (t.type === 'income') inc += t.amount;
-      else exp += t.amount;
-    });
-    return { income: inc, expense: exp, balance: inc - exp };
-  }, [filtered]);
+  const monthExpense = sumByType(monthTx, 'expense');
+  const monthIncome = sumByType(monthTx, 'income');
 
-  const handleAdd = async () => {
-    const value = parseFloat(amount);
-    if (!value || value <= 0) {
-      Alert.alert('提示', '请输入有效金额');
-      return;
-    }
-    await addTransaction({
-      type,
-      amount: value,
-      category: type === 'expense' ? category : 'other',
-      note,
-      date,
-    });
-    setAmount('');
-    setNote('');
-  };
+  const dayTx = useMemo(() => {
+    return transactions
+      .filter((t) => t.date === selectedDate)
+      .sort((a, b) => {
+        const ta = a.time || '00:00';
+        const tb = b.time || '00:00';
+        if (ta !== tb) return tb.localeCompare(ta);
+        return b.createdAt.localeCompare(a.createdAt);
+      });
+  }, [transactions, selectedDate]);
+
+  const dayExpense = sumByType(dayTx, 'expense');
+  const dayIncome = sumByType(dayTx, 'income');
+
+  const txDates = useMemo(
+    () => new Set(transactions.map((t) => t.date)),
+    [transactions]
+  );
 
   const confirmDelete = (item: Transaction) => {
     Alert.alert('删除记录', '确定删除这条记账吗？', [
@@ -140,120 +108,80 @@ export default function FinanceScreen() {
     ]);
   };
 
+  const mask = (v: string) => (hideAmounts ? '****' : v);
+
   if (!ready) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={COLORS.accent} />
+        <ActivityIndicator color={FINANCE_BLUE} />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenHeader title="每日记账" subtitle="收入与支出分色显示，长按可删除" />
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ListHeaderComponent={
-          <>
-            <SummaryCard income={income} expense={expense} balance={balance} />
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryTop}>
+          <TouchableOpacity style={styles.dateBtn} onPress={() => setCalendarOpen(true)}>
+            <Text style={styles.dateBtnText}>{formatMonthLabel(viewYear, viewMonth)}</Text>
+            <Text style={styles.dateArrow}> ▾</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setHideAmounts((v) => !v)} hitSlop={12}>
+            <Text style={styles.eye}>{hideAmounts ? '🙈' : '👁'}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryCol}>
+            <Text style={styles.summaryLabel}>本月支出</Text>
+            <Text style={styles.summaryAmount}>¥{mask(formatMoney(monthExpense))}</Text>
+          </View>
+          <View style={styles.summaryCol}>
+            <Text style={styles.summaryLabel}>本月收入</Text>
+            <Text style={styles.summaryAmount}>¥{mask(formatMoney(monthIncome))}</Text>
+          </View>
+        </View>
+      </View>
 
-            <View style={styles.formCard}>
-              <View style={styles.typeRow}>
-                <TouchableOpacity
-                  style={[styles.typeBtn, type === 'income' && styles.typeBtnIncome]}
-                  onPress={() => setType('income')}
-                >
-                  <Text style={[styles.typeBtnText, type === 'income' && styles.typeBtnTextActive]}>
-                    收入
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.typeBtn, type === 'expense' && styles.typeBtnExpense]}
-                  onPress={() => setType('expense')}
-                >
-                  <Text style={[styles.typeBtnText, type === 'expense' && styles.typeBtnTextActive]}>
-                    支出
-                  </Text>
-                </TouchableOpacity>
-              </View>
+      <View style={styles.dayCard}>
+        <View style={styles.dayHeader}>
+          <Text style={styles.dayTitle}>{formatDayHeader(selectedDate, today)}</Text>
+          <Text style={styles.dayTotals}>
+            支 {mask(formatMoney(dayExpense))}  收 {mask(formatMoney(dayIncome))}
+          </Text>
+        </View>
+        <FlatList
+          data={dayTx}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={dayTx.length > 4}
+          style={styles.list}
+          ListEmptyComponent={
+            <Text style={styles.emptyDay}>这一天还没有记账</Text>
+          }
+          renderItem={({ item }) => (
+            <TransactionItem item={item} onLongPress={() => confirmDelete(item)} />
+          )}
+        />
+      </View>
 
-              <TextInput
-                style={styles.amountInput}
-                placeholder="金额"
-                placeholderTextColor={COLORS.textSecondary}
-                keyboardType="decimal-pad"
-                value={amount}
-                onChangeText={setAmount}
-              />
-
-              <TextInput
-                style={styles.noteInput}
-                placeholder="备注（可选）"
-                placeholderTextColor={COLORS.textSecondary}
-                value={note}
-                onChangeText={setNote}
-              />
-
-              <TextInput
-                style={styles.noteInput}
-                placeholder={`日期（如 ${today}）`}
-                placeholderTextColor={COLORS.textSecondary}
-                value={date}
-                onChangeText={setDate}
-              />
-
-              {type === 'expense' && (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
-                  {EXPENSE_CATEGORIES.map((cat) => (
-                    <TouchableOpacity
-                      key={cat.key}
-                      style={[
-                        styles.catChip,
-                        { borderColor: cat.color },
-                        category === cat.key && { backgroundColor: cat.color },
-                      ]}
-                      onPress={() => setCategory(cat.key)}
-                    >
-                      <Text
-                        style={[
-                          styles.catChipText,
-                          { color: category === cat.key ? '#fff' : cat.color },
-                        ]}
-                      >
-                        {cat.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-
-              <TouchableOpacity
-                style={[
-                  styles.addRecordBtn,
-                  { backgroundColor: type === 'income' ? COLORS.income : COLORS.expense },
-                ]}
-                onPress={handleAdd}
-              >
-                <Text style={styles.addRecordBtnText}>添加记录</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.filterRow}>
-              <Text style={styles.sectionTitle}>记录列表</Text>
-              <TouchableOpacity onPress={() => setFilterDate(filterDate ? null : today)}>
-                <Text style={styles.filterBtn}>
-                  {filterDate ? '显示全部' : '只看今天'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </>
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.85}
+        onPress={() =>
+          router.push({ pathname: '/record-transaction', params: { date: selectedDate } })
         }
-        ListEmptyComponent={<EmptyState text="还没有记账，先添加一条吧" />}
-        renderItem={({ item }) => (
-          <TransactionRow item={item} onDelete={() => confirmDelete(item)} />
-        )}
+      >
+        <Text style={styles.fabIcon}>+</Text>
+      </TouchableOpacity>
+
+      <DayPickerModal
+        visible={calendarOpen}
+        selectedDate={selectedDate}
+        markedDates={txDates}
+        onClose={() => setCalendarOpen(false)}
+        onConfirm={(d) => {
+          setSelectedDate(d);
+          setCalendarOpen(false);
+        }}
       />
     </SafeAreaView>
   );
@@ -261,97 +189,94 @@ export default function FinanceScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
-  loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
-  list: { paddingHorizontal: 16, paddingBottom: 24 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   summaryCard: {
+    margin: 16,
+    marginBottom: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  summaryTop: {
     flexDirection: 'row',
-    backgroundColor: COLORS.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  summaryItem: { flex: 1, alignItems: 'center' },
-  summaryDivider: { width: 1, backgroundColor: COLORS.border },
-  summaryLabel: { fontSize: 13, color: COLORS.textSecondary, marginBottom: 4 },
-  summaryValue: { fontSize: 16, fontWeight: '700' },
-  formCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  typeRow: { flexDirection: 'row', gap: 10, marginBottom: 14 },
-  typeBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    marginBottom: 16,
+  },
+  dateBtn: { flexDirection: 'row', alignItems: 'center' },
+  dateBtnText: { fontSize: 17, fontWeight: '700', color: COLORS.text },
+  dateArrow: { fontSize: 14, color: COLORS.textSecondary },
+  eye: { fontSize: 20 },
+  summaryRow: { flexDirection: 'row' },
+  summaryCol: { flex: 1 },
+  summaryLabel: { fontSize: 13, color: COLORS.textSecondary, marginBottom: 6 },
+  summaryAmount: { fontSize: 22, fontWeight: '700', color: COLORS.text },
+  dayCard: {
+    flex: 1,
+    marginHorizontal: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
   },
-  typeBtnIncome: { backgroundColor: COLORS.incomeBg, borderColor: COLORS.income },
-  typeBtnExpense: { backgroundColor: COLORS.expenseBg, borderColor: COLORS.expense },
-  typeBtnText: { fontSize: 15, fontWeight: '600', color: COLORS.textSecondary },
-  typeBtnTextActive: { color: COLORS.text },
-  amountInput: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: 10,
-    paddingVertical: 4,
-  },
-  noteInput: {
-    fontSize: 15,
-    color: COLORS.text,
+  dayHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-    paddingVertical: 10,
-    marginBottom: 8,
   },
-  catScroll: { marginVertical: 10 },
-  catChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    marginRight: 8,
+  dayTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text },
+  dayTotals: { fontSize: 13, color: COLORS.textSecondary },
+  list: { flex: 1 },
+  emptyDay: {
+    textAlign: 'center',
+    color: COLORS.textSecondary,
+    paddingVertical: 40,
+    fontSize: 14,
   },
-  catChipText: { fontSize: 13, fontWeight: '600' },
-  addRecordBtn: {
-    marginTop: 8,
-    borderRadius: 12,
+  txItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.border,
   },
-  addRecordBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  txIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
-    marginBottom: 10,
+    justifyContent: 'center',
+    marginRight: 12,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text },
-  filterBtn: { fontSize: 14, color: COLORS.accent, fontWeight: '600' },
-  txRow: {
-    flexDirection: 'row',
+  txIconText: { fontSize: 22 },
+  txBody: { flex: 1, marginRight: 8 },
+  txTitleRow: { flexDirection: 'row', alignItems: 'center' },
+  txCategory: { fontSize: 16, fontWeight: '600', color: COLORS.text },
+  txDetail: { fontSize: 12, color: COLORS.textSecondary, marginTop: 4 },
+  txAmount: { fontSize: 17, fontWeight: '700', color: COLORS.text },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: FINANCE_BLUE,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.card,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: FINANCE_BLUE,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
   },
-  txLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  txDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
-  txInfo: { flex: 1 },
-  txNote: { fontSize: 15, fontWeight: '600', color: COLORS.text },
-  txMeta: { fontSize: 12, color: COLORS.textSecondary, marginTop: 2 },
-  txAmount: { fontSize: 16, fontWeight: '700', marginLeft: 8 },
+  fabIcon: { fontSize: 32, color: '#fff', lineHeight: 34, fontWeight: '300' },
 });

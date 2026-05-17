@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -7,111 +7,67 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
-import { Calendar, DateData } from 'react-native-calendars';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { DiaryCalendar } from '../../src/components/DiaryCalendar';
 import { ScreenHeader } from '../../src/components/ScreenHeader';
 import { COLORS, formatDate } from '../../src/constants';
 import { useApp } from '../../src/context/AppContext';
 
 export default function DiaryScreen() {
   const { ready, diaryDates, getDiary, saveDiary } = useApp();
-  const today = formatDate(new Date());
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [content, setContent] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [savedHint, setSavedHint] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(formatDate(new Date()));
+  const [text, setText] = useState('');
 
   useEffect(() => {
-    const diary = getDiary(selectedDate);
-    setContent(diary?.content ?? '');
-    setSavedHint(false);
+    setText(getDiary(selectedDate)?.content ?? '');
   }, [selectedDate, getDiary]);
 
-  const markedDates = useMemo(() => {
-    const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string }> = {};
-    diaryDates.forEach((date) => {
-      marks[date] = { marked: true, dotColor: COLORS.accent };
-    });
-    marks[selectedDate] = {
-      ...marks[selectedDate],
-      selected: true,
-      selectedColor: COLORS.accent,
-    };
-    return marks;
-  }, [diaryDates, selectedDate]);
-
-  const onDayPress = (day: DateData) => {
-    setSelectedDate(day.dateString);
+  const onSelectDate = (date: string) => {
+    setSelectedDate(date);
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    await saveDiary(selectedDate, content);
-    setSaving(false);
-    setSavedHint(true);
-    setTimeout(() => setSavedHint(false), 1500);
+  const onChangeText = (value: string) => {
+    setText(value);
+    void saveDiary(selectedDate, value);
   };
 
   if (!ready) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={COLORS.accent} />
+        <ActivityIndicator size="large" color={COLORS.accent} />
       </View>
     );
   }
 
+  const displayDate = selectedDate.replace(/-/g, '/');
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScreenHeader title="每日日记" subtitle="点选日历上的日期，记录那一天的心情" />
+      <ScreenHeader title="日记" subtitle="点击年月可展开月份与年份选择" />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
       >
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <View style={styles.card}>
-            <Calendar
-              current={selectedDate}
-              onDayPress={onDayPress}
-              markedDates={markedDates}
-              theme={{
-                backgroundColor: COLORS.card,
-                calendarBackground: COLORS.card,
-                textSectionTitleColor: COLORS.textSecondary,
-                selectedDayBackgroundColor: COLORS.accent,
-                todayTextColor: COLORS.accent,
-                dayTextColor: COLORS.text,
-                arrowColor: COLORS.accent,
-                monthTextColor: COLORS.text,
-                textDayFontWeight: '500',
-                textMonthFontWeight: '700',
-              }}
-              enableSwipeMonths
-            />
-          </View>
-
-          <View style={styles.editorCard}>
-            <Text style={styles.dateLabel}>{selectedDate}</Text>
+        <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <DiaryCalendar
+            selectedDate={selectedDate}
+            onSelectDate={onSelectDate}
+            markedDates={diaryDates}
+          />
+          <View style={styles.editor}>
+            <Text style={styles.dateLabel}>{displayDate}</Text>
             <TextInput
               style={styles.input}
               multiline
-              placeholder="写下这一天的日记..."
+              placeholder="记录今天的心情与事情…"
               placeholderTextColor={COLORS.textSecondary}
-              value={content}
-              onChangeText={setContent}
+              value={text}
+              onChangeText={onChangeText}
               textAlignVertical="top"
             />
-            <TouchableOpacity
-              style={[styles.saveBtn, saving && styles.saveBtnDisabled]}
-              onPress={handleSave}
-              disabled={saving}
-            >
-              <Text style={styles.saveBtnText}>
-                {saving ? '保存中...' : savedHint ? '已保存 ✓' : '保存日记'}
-              </Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -123,22 +79,15 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   flex: { flex: 1 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
-  scroll: { paddingHorizontal: 16, paddingBottom: 24 },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  editorCard: {
+  editor: {
+    margin: 16,
+    marginTop: 12,
     backgroundColor: COLORS.card,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
-    minHeight: 280,
+    minHeight: 200,
   },
   dateLabel: {
     fontSize: 15,
@@ -147,19 +96,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    flex: 1,
-    minHeight: 180,
     fontSize: 16,
     lineHeight: 24,
     color: COLORS.text,
+    minHeight: 160,
   },
-  saveBtn: {
-    marginTop: 14,
-    backgroundColor: COLORS.accent,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  saveBtnDisabled: { opacity: 0.6 },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

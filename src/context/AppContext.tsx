@@ -8,11 +8,13 @@ import React, {
 } from 'react';
 import { createId, formatDate } from '../constants';
 import { loadAppData, saveAppData } from '../storage';
+import { formatTime } from '../finance/constants';
 import {
   AppData,
   DailyDiary,
   Essay,
   ExpenseCategory,
+  IncomeCategory,
   Transaction,
   TransactionType,
 } from '../types';
@@ -27,8 +29,12 @@ interface AppContextValue extends AppData {
     type: TransactionType;
     amount: number;
     category: ExpenseCategory;
+    incomeCategory?: IncomeCategory;
     note: string;
     date: string;
+    time?: string;
+    channel?: string;
+    app?: string;
   }) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   diaryDates: Set<string>;
@@ -127,17 +133,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       type: TransactionType;
       amount: number;
       category: ExpenseCategory;
+      incomeCategory?: IncomeCategory;
       note: string;
       date: string;
+      time?: string;
+      channel?: string;
+      app?: string;
     }) => {
+      const now = new Date();
       const transaction: Transaction = {
         id: createId(),
         type: input.type,
         amount: input.amount,
         category: input.category,
+        incomeCategory: input.incomeCategory,
         note: input.note.trim(),
         date: input.date,
-        createdAt: new Date().toISOString(),
+        time: input.time ?? formatTime(now),
+        channel: input.channel?.trim() || '其他',
+        app: input.app?.trim() || '其他',
+        createdAt: now.toISOString(),
       };
       await persist({
         ...data,

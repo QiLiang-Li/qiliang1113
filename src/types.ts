@@ -1,10 +1,19 @@
 export type ExpenseCategory =
-  | 'living'
-  | 'shopping'
-  | 'entertainment'
-  | 'transport'
   | 'food'
+  | 'shopping'
+  | 'transport'
+  | 'communication'
+  | 'clothing'
+  | 'beauty'
+  | 'housing'
+  | 'travel'
+  | 'digital'
+  | 'medical'
+  | 'living'
+  | 'entertainment'
   | 'other';
+
+export type IncomeCategory = 'salary' | 'bonus' | 'investment' | 'gift' | 'other_income';
 
 export type TransactionType = 'income' | 'expense';
 
@@ -28,8 +37,12 @@ export interface Transaction {
   type: TransactionType;
   amount: number;
   category: ExpenseCategory;
+  incomeCategory?: IncomeCategory;
   note: string;
   date: string;
+  time: string;
+  channel: string;
+  app: string;
   createdAt: string;
 }
 
