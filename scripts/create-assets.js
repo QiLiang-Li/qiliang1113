@@ -1,58 +1,41 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
+const { PNG } = require('pngjs');
 
 const dir = path.join(__dirname, '..', 'assets');
-const sourcePath = path.join(dir, 'cat-avatar.png');
 const SIZE = 1024;
-const INNER = 512;
 
-async function writeLauncherIcon(filePath) {
-  await sharp(sourcePath)
-    .resize(SIZE, SIZE, { fit: 'cover', position: 'center' })
-    .png({ compressionLevel: 9, palette: true, colors: 256 })
-    .toFile(filePath);
-}
-
-async function writeAdaptiveIcon(filePath) {
-  const innerCircle = Buffer.from(
-    `<svg width="${INNER}" height="${INNER}"><circle cx="${INNER / 2}" cy="${INNER / 2}" r="${INNER / 2}" fill="white"/></svg>`
-  );
-  const catRound = await sharp(sourcePath)
-    .resize(INNER, INNER, { fit: 'cover', position: 'center' })
-    .composite([{ input: innerCircle, blend: 'dest-in' }])
-    .png()
-    .toBuffer();
-
-  await sharp({
-    create: {
-      width: SIZE,
-      height: SIZE,
-      channels: 4,
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    },
-  })
-    .composite([{ input: catRound, gravity: 'center' }])
-    .png({ compressionLevel: 9 })
-    .toFile(filePath);
+/** 鐢熸垚绾壊 PNG锛圗xpo 瑕佹眰 icon 鑷冲皯 1024脳1024锛?*/
+function writeSolidPng(filePath, rgb) {
+  const png = new PNG({ width: SIZE, height: SIZE });
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const i = (SIZE * y + x) << 2;
+      png.data[i] = rgb[0];
+      png.data[i + 1] = rgb[1];
+      png.data[i + 2] = rgb[2];
+      png.data[i + 3] = 255;
+    }
+  }
+  return new Promise((resolve, reject) => {
+    png
+      .pack()
+      .pipe(fs.createWriteStream(filePath))
+      .on('finish', resolve)
+      .on('error', reject);
+  });
 }
 
 async function main() {
   fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(sourcePath)) {
-    console.warn('Missing cat-avatar.png — skip icon generation');
-    return;
-  }
+  const accent = [91, 124, 153];
+  const splash = [247, 245, 242];
 
-  await writeLauncherIcon(path.join(dir, 'icon.png'));
-  await writeAdaptiveIcon(path.join(dir, 'adaptive-icon.png'));
-  await writeLauncherIcon(path.join(dir, 'splash-icon.png'));
+  await writeSolidPng(path.join(dir, 'icon.png'), accent);
+  await writeSolidPng(path.join(dir, 'adaptive-icon.png'), accent);
+  await writeSolidPng(path.join(dir, 'splash-icon.png'), splash);
 
-  for (const name of ['icon.png', 'adaptive-icon.png', 'splash-icon.png']) {
-    const meta = await sharp(path.join(dir, name)).metadata();
-    const bytes = fs.statSync(path.join(dir, name)).size;
-    console.log(`${name}: ${meta.width}x${meta.height}, alpha=${meta.hasAlpha}, ${bytes} bytes`);
-  }
+  console.log('Created 1024x1024 assets in', dir);
 }
 
 main().catch((err) => {

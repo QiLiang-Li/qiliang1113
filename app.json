@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.diaryfinance.app"
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F7F5F2"
@@ -28,9 +28,6 @@
       "expo-router"
     ],
     "extra": {
-      "router": {
-        "origin": false
-      },
       "eas": {
         "projectId": "7fc269f3-c446-4236-bf21-f994524442af"
       }
