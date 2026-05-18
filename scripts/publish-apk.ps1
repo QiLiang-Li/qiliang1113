@@ -7,7 +7,8 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
 $configPath = Join-Path $root "website\config.json"
-$tag = "v$Version"
+# GitHub Release 标签须与 -Version 完全一致（你当前用的是 1.4，不是 v1.4）
+$tag = $Version.Trim()
 $releaseUrl = "https://github.com/QiLiang-Li/qiliang1113/releases/download/$tag/diary-finance.apk"
 
 if (-not (Test-Path -LiteralPath $ApkPath)) {
