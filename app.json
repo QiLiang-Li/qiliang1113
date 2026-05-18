@@ -2,7 +2,7 @@
   "expo": {
     "name": "招财猫",
     "slug": "diary-finance-app",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.diaryfinance.app"
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 8,
+      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F7F5F2"

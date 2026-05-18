@@ -7,7 +7,7 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
     日记: '📅',
     感言: '📝',
     记账: '💰',
-    联系: '💬',
+    设置: '⚙️',
   };
   return (
     <Text style={[styles.icon, focused && styles.iconFocused]}>
@@ -49,10 +49,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="support"
+        name="settings"
         options={{
-          title: '联系',
-          tabBarIcon: ({ focused }) => <TabIcon label="联系" focused={focused} />,
+          title: '设置',
+          tabBarIcon: ({ focused }) => <TabIcon label="设置" focused={focused} />,
         }}
       />
       <Tabs.Screen name="index" options={{ href: null }} />

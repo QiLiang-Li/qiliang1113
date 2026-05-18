@@ -124,7 +124,7 @@ export function DiaryCalendar({ selectedDate, onSelectDate, markedDates }: Diary
       <View style={styles.header}>
         {showBack ? (
           <TouchableOpacity
-            style={styles.navBtn}
+            style={[styles.navBtn, styles.navBtnBack]}
             onPress={() => {
               if (viewMode === 'year') setViewMode('month');
               else {
@@ -133,7 +133,9 @@ export function DiaryCalendar({ selectedDate, onSelectDate, markedDates }: Diary
               }
             }}
           >
-            <Text style={styles.navText}>‹ 返回</Text>
+            <Text style={styles.backText} numberOfLines={1}>
+              ‹ 返回
+            </Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.navBtn} onPress={() => shiftMonth(-1)}>
@@ -270,11 +272,22 @@ const styles = StyleSheet.create({
   navBtn: {
     width: 48,
     padding: 8,
+    justifyContent: 'center',
+  },
+  navBtnBack: {
+    width: 64,
+    paddingHorizontal: 4,
   },
   navText: {
     fontSize: 20,
     color: COLORS.accent,
     fontWeight: '600',
+  },
+  backText: {
+    fontSize: 14,
+    color: COLORS.accent,
+    fontWeight: '600',
+    flexShrink: 0,
   },
   titleBtn: {
     flex: 1,
