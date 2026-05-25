@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,9 +20,12 @@ export default function DiaryScreen() {
   const { ready, diaryDates, getDiary, saveDiary } = useApp();
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()));
   const [text, setText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');
 
   useEffect(() => {
     setText(getDiary(selectedDate)?.content ?? '');
+    setSaveStatus('');
   }, [selectedDate, getDiary]);
 
   const onSelectDate = (date: string) => {
@@ -30,7 +34,20 @@ export default function DiaryScreen() {
 
   const onChangeText = (value: string) => {
     setText(value);
-    void saveDiary(selectedDate, value);
+    setSaveStatus('自动保存中…');
+    void saveDiary(selectedDate, value).then(() => {
+      setSaveStatus('已自动保存');
+    });
+  };
+
+  const handleManualSave = async () => {
+    setSaving(true);
+    try {
+      await saveDiary(selectedDate, text);
+      setSaveStatus('已保存');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!ready) {
@@ -58,7 +75,10 @@ export default function DiaryScreen() {
             markedDates={diaryDates}
           />
           <View style={styles.editor}>
-            <Text style={styles.dateLabel}>{displayDate}</Text>
+            <View style={styles.editorHeader}>
+              <Text style={styles.dateLabel}>{displayDate}</Text>
+              <Text style={styles.saveStatus}>{saveStatus}</Text>
+            </View>
             <TextInput
               style={styles.input}
               multiline
@@ -68,6 +88,14 @@ export default function DiaryScreen() {
               onChangeText={onChangeText}
               textAlignVertical="top"
             />
+            <TouchableOpacity
+              style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+              onPress={handleManualSave}
+              disabled={saving}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.saveButtonText}>{saving ? '保存中' : '保存'}</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -89,16 +117,43 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     minHeight: 200,
   },
+  editorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
   dateLabel: {
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.accent,
-    marginBottom: 10,
+  },
+  saveStatus: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   input: {
     fontSize: 16,
     lineHeight: 24,
     color: COLORS.text,
     minHeight: 160,
+    paddingBottom: 44,
+  },
+  saveButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    backgroundColor: COLORS.accent,
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+  },
+  saveButtonDisabled: {
+    opacity: 0.65,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

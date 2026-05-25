@@ -151,7 +151,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         date: input.date,
         time: input.time ?? formatTime(now),
         channel: input.channel?.trim() || '其他',
-        app: input.app?.trim() || '其他',
+        app: input.app?.trim() || '',
         createdAt: now.toISOString(),
       };
       await persist({

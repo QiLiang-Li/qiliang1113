@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DateTimePickerModal, formatDateTimeLabel } from '../src/components/finance/DateTimePickerModal';
+import { DateTimePickerModal } from '../src/components/finance/DateTimePickerModal';
 import { NumericKeypad } from '../src/components/finance/NumericKeypad';
 import { OptionPickerModal } from '../src/components/finance/OptionPickerModal';
 import { COLORS, formatDate } from '../src/constants';
@@ -25,7 +25,6 @@ import {
   FINANCE_BLUE_LIGHT,
   formatTime,
   INCOME_CATEGORY_LIST,
-  PAYMENT_APPS,
   PAYMENT_CHANNELS,
   parseAmountInput,
 } from '../src/finance/constants';
@@ -46,15 +45,14 @@ export default function RecordTransactionScreen() {
   const [category, setCategory] = useState<ExpenseCategory>('food');
   const [incomeCategory, setIncomeCategory] = useState<IncomeCategory>('salary');
   const [channel, setChannel] = useState('支付宝');
-  const [app, setApp] = useState('淘宝');
   const [date, setDate] = useState(defaultDate);
   const [time, setTime] = useState(formatTime(now));
   const [page, setPage] = useState(0);
   const [saving, setSaving] = useState(false);
 
   const [channelOpen, setChannelOpen] = useState(false);
-  const [appOpen, setAppOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
+  const [datePickerMode, setDatePickerMode] = useState<'date' | 'time'>('date');
 
   const pagerRef = useRef<ScrollView>(null);
 
@@ -97,7 +95,7 @@ export default function RecordTransactionScreen() {
         date,
         time,
         channel,
-        app,
+        app: '',
       });
       router.back();
     } finally {
@@ -205,14 +203,26 @@ export default function RecordTransactionScreen() {
             {channel} ▾
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.metaChip} onPress={() => setAppOpen(true)}>
+        <TouchableOpacity
+          style={styles.metaChip}
+          onPress={() => {
+            setDatePickerMode('date');
+            setDateOpen(true);
+          }}
+        >
           <Text style={styles.metaText} numberOfLines={1}>
-            {app} ▾
+            {date.replace(/-/g, '/')} ▾
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.metaChip} onPress={() => setDateOpen(true)}>
+        <TouchableOpacity
+          style={styles.metaChip}
+          onPress={() => {
+            setDatePickerMode('time');
+            setDateOpen(true);
+          }}
+        >
           <Text style={styles.metaText} numberOfLines={1}>
-            {formatDateTimeLabel(date, time)} ▾
+            {time} ▾
           </Text>
         </TouchableOpacity>
       </View>
@@ -243,21 +253,11 @@ export default function RecordTransactionScreen() {
           setChannelOpen(false);
         }}
       />
-      <OptionPickerModal
-        visible={appOpen}
-        title="交易应用"
-        options={PAYMENT_APPS}
-        value={app}
-        onClose={() => setAppOpen(false)}
-        onConfirm={(v) => {
-          setApp(v);
-          setAppOpen(false);
-        }}
-      />
       <DateTimePickerModal
         visible={dateOpen}
         date={date}
         time={time}
+        initialMode={datePickerMode}
         onClose={() => setDateOpen(false)}
         onConfirm={(d, t) => {
           setDate(d);

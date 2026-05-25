@@ -19,6 +19,7 @@ interface DateTimePickerModalProps {
   visible: boolean;
   date: string;
   time: string;
+  initialMode?: 'date' | 'time';
   onClose: () => void;
   onConfirm: (date: string, time: string) => void;
 }
@@ -76,7 +77,14 @@ function WheelColumn({
   );
 }
 
-export function DateTimePickerModal({ visible, date, time, onClose, onConfirm }: DateTimePickerModalProps) {
+export function DateTimePickerModal({
+  visible,
+  date,
+  time,
+  initialMode = 'date',
+  onClose,
+  onConfirm,
+}: DateTimePickerModalProps) {
   const initial = parseDate(date);
   const [year, setYear] = useState(initial.year);
   const [month, setMonth] = useState(initial.month);
@@ -91,9 +99,9 @@ export function DateTimePickerModal({ visible, date, time, onClose, onConfirm }:
       setMonth(p.month);
       setDay(p.day);
       setTimeVal(time);
-      setShowTime(false);
+      setShowTime(initialMode === 'time');
     }
-  }, [visible, date, time]);
+  }, [visible, date, time, initialMode]);
 
   const years = useMemo(() => Array.from({ length: 11 }, (_, i) => year - 5 + i), [year]);
   const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
